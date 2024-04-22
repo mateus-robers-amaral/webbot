@@ -17,7 +17,7 @@ url = 'https://www.pichau.com.br'
 
 web.get(url)
 
-web.find_element('xpath', '//*[@id="mui-27998"]').send_keys('Notebook') # digite a hotkey
+web.find_element('xpath', '//*[@id="mui-36812"]').send_keys('Notebook') # digite a hotkey
 
 time.sleep(2)
 
