@@ -85,6 +85,32 @@ import pandas as pd
 chave_api = '6408775461:AAFIhWk40_iqu2prkLSpVUn0xwl1Yas5MXI'
 bot = telebot.TeleBot(chave_api)
 
+@bot.message_handler(commands=['start'])
+def generos(message):
+    markup = types.InlineKeyboardMarkup(row_width=4)
+    texto = '''Olá, Bem-vindo ao What Movie!'''
+    bot.reply_to(message, texto)
+    op1 = types.InlineKeyboardButton('Bora', callback_data='s')
+    op2 = types.InlineKeyboardButton('Hoje não', callback_data='n')
+
+    markup.add(op1, op2)
+
+    bot.send_message(message.chat.id, '''E ai?! Vai um filminho hoje?? 👀🍿🎥''', reply_markup=markup)
+
+@bot.callback_query_handler(func=lambda call: True)
+def buscar_filmes(callback):
+    generos = ['acao', 'aventura', 'animacao', 'anime', 'biografia', 'comedia', 'crime', 
+                'documentario', 'drama', 'entretenimento',  'fantasia', 'historia', 'feriado',
+                'terror', 'musica', 'musical', 'natureza', 'noticiario', 'reality', 'romance',
+                'curta', 'esporte', 'viagem', 'variedade', 'guerra', 'velho_oeste']
+    if callback.data in generos:
+        filmes = pd.read_csv('/Users/rober/Desktop/Estudos/filmes.csv')
+        bot.send_message(callback.message.chat.id, f'Trazendo uma lista de filmes de {callback.data}...')
+        filmes_genero = filmes[filmes['GENRE'] == callback.data]
+        for index, row in filmes_genero.iterrows():
+            mensagem = f"Título: {row['FILM']}\nData de lançamento: {row['POSTING']}\nClassificação do Público: {row['CRITIC']}\nClassificação da Crítica: {row['AUDIENCE']}"
+            bot.send_message(callback.message.chat.id, mensagem)
+
 @bot.callback_query_handler(func=lambda call: True)
 def resposta(callback):
     if callback.data == 's':
@@ -124,33 +150,9 @@ def resposta(callback):
         
         bot.send_message(callback.message.chat.id, 'Que tipo de filme gostaria de ver hoje?', reply_markup=markup)
 
+        buscar_filmes(callback.data)
+
     elif callback.data == 'n':
         bot.send_message(callback.message.chat.id, 'Ok então, nos vemos outra hora.')
-
-@bot.message_handler(commands=['start'])
-def generos(callback):
-    markup = types.InlineKeyboardMarkup(row_width=4)
-    texto = '''Olá, Bem-vindo ao What Movie!'''
-    bot.reply_to(callback, texto)
-    op1 = types.InlineKeyboardButton('Bora', callback_data='s')
-    op2 = types.InlineKeyboardButton('Hoje não', callback_data='n')
-
-    markup.add(op1, op2)
-
-    bot.send_message(callback.chat.id, '''E ai?! Vai um filminho hoje?? 👀🍿🎥''', reply_markup=markup)
-
-@bot.callback_query_handler(func=resposta)
-def buscar_filmes(callback):
-    generos = ['acao', 'aventura', 'animacao', 'anime', 'biografia', 'comedia', 'crime', 
-                'documentario', 'drama', 'entretenimento',  'fantasia', 'historia', 'feriado',
-                'terror', 'musica', 'musical', 'natureza', 'noticiario', 'reality', 'romance',
-                'curta', 'esporte', 'viagem', 'variedade', 'guerra', 'velho_oeste']
-    if callback.data in generos:
-        filmes = pd.read_csv('/Users/rober/Desktop/Estudos/filmes.csv')
-        bot.send_message(callback.message.chat.id, f'Trazendo uma lista de filmes de {callback.data}...')
-        filmes_genero = filmes[filmes['GENRE'] == callback.data]
-        for index, row in filmes_genero.iterrows():
-            mensagem = f"Título: {row['FILM']}\nData de lançamento: {row['POSTING']}\nClassificação do Público: {row['CRITIC']}\nClassificação da Crítica: {row['AUDIENCE']}"
-            bot.send_message(callback.message.chat.id, mensagem)
 
 bot.polling()
