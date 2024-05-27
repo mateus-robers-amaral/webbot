@@ -2,7 +2,7 @@ import pandas as pd
 import telebot
 from telebot import types
 
-bot = telebot.TeleBot('6753015460:AAHQ6R8HkaqIpFQ-ieu5ddFzJxUn1BleQyI')
+bot = telebot.TeleBot('CHAVE_API')
 
 @bot.message_handler(commands=['start'])
 def question(message):
